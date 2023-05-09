@@ -6,6 +6,7 @@ import Login from '@/components/Login';
 import { useState } from 'react';
 import { ethers } from 'ethers';
 import toast from "react-hot-toast";
+import CountdownTimer from '@/components/CountdownTimer';
 
 export default function Home() {
   const myaddress = useAddress();
@@ -27,12 +28,12 @@ export default function Home() {
     const notification = toast.loading("Buying your tickets...");
 
     try{
-      const data = await contract.call('BuyTickets', "",{ value: ethers.utils.parseEther((Number(ethers.utils.formatEther(ticketPrice)) * quantity ).toString())});
+      // const data = await contract.call('BuyTickets', "",{ value: ethers.utils.parseEther((Number(ethers.utils.formatEther(ticketPrice)) * quantity ).toString())});
       
-      toast.success("Ticket Purchased sucessfully!", {
-        id: notification,
-      });
-      console.info("contract call successs", data);
+      // toast.success("Ticket Purchased sucessfully!", {
+      //   id: notification,
+      // });
+      // console.info("contract call successs", data);
     } catch(err) {
       toast.error("Ticket Purchase Failed!", {
         id: notification,
@@ -74,6 +75,9 @@ export default function Home() {
         </div>
 
         {/* Countdown timer */}
+        <div className='mt-5 mb-3'>
+                <CountdownTimer />
+        </div>
       </div>
 
       <div className='stats-container space-y-2'>
