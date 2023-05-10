@@ -38,6 +38,16 @@ contract Lottery {
         expiration = block.timestamp + duration;
     }
 
+    function getSenderTickets () public view returns (uint256) {
+        uint count = 0;
+        for (uint i = 0; i < tickets.length; i++) {
+            if (tickets[i] == msg.sender) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     // return all the tickets
     function getTickets() public view returns (address[] memory) {
         return tickets;
@@ -100,7 +110,7 @@ contract Lottery {
 
         return reward2Transfer;
     }
-
+ 
     function WithdrawWinnings() public isWinner {
         address payable winner = payable(msg.sender);
 
