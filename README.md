@@ -11,7 +11,12 @@ yarn dev
 # or
 pnpm dev
 ```
+User Screen :
 ![My Image](images/project_mainscreen.png)
+
+Admin Screen
+![My Image](images/admin_panel.png)
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
