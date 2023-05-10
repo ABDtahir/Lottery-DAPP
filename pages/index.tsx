@@ -7,13 +7,13 @@ import { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import toast from "react-hot-toast";
 import CountdownTimer from '@/components/CountdownTimer';
+import AdminControls from '@/components/AdminControls';
 
 export default function Home() {
   const myaddress = useAddress();
   const [userTickets , setUserTickets] = useState(0);
   const [quantity , setQuantity] = useState<number>(1);
   const { contract , isLoading } = useContract("0x343190145eBF5Ad6E10181CcaCf2b2099BfBF617");
-  console.log("my address:- ", myaddress);
   const { data: remainingTickets} = useContractRead(
   contract, "RemainingTickets" );
   const { data: currentWinning} = useContractRead(
@@ -24,11 +24,18 @@ export default function Home() {
   contract, "ticketCommission");
   const { data: tickets} = useContractRead(
   contract, "getTickets");
+  const { data: lastWinner} = useContractRead(
+  contract, "lastWinner");
+  const { data: lastWinnerAmount} = useContractRead(
+  contract, "lastWinnerAmount");
   const { data: winnings} = useContractRead(
   contract, "getWinningsForAddress" , [myaddress]);
   const { mutateAsync: WithdrawWinnings } = useContractWrite(contract, "WithdrawWinnings");
   const { data: expiration, isLoading: isLoadingExpiration} = useContractRead(
   contract, "expiration" );
+  const { data: lotteryOperator} = useContractRead(
+  contract, "lotteryOperator");
+  
   
   useEffect(() => {
     if(!tickets) return;
@@ -55,6 +62,14 @@ export default function Home() {
       });
       return;
     }
+    
+    if(userTickets === 10){
+      toast.error("Ticket Limit Reached!", {
+        id: notification,
+      });
+      return;      
+    }
+
     try{
       const data = await contract.call('BuyTickets', "",{ value: ethers.utils.parseEther((Number(ethers.utils.formatEther(ticketPrice)) * quantity ).toString())});
       
@@ -96,6 +111,7 @@ export default function Home() {
         Lottery DAPP
       </title>
     </Head> 
+
     <div className='flex-1'>
       <Header />
 
@@ -114,11 +130,28 @@ export default function Home() {
         </div>
       )}
 
+      <div className='bg-[#0A1F1C] p-5  flex justify-between mx-10 text-orange-400 animate-pulse'>
+        <h4 className='font-bold'>Previous Winnings:{" "} 
+        {lastWinnerAmount && ethers.utils.formatEther(
+            lastWinnerAmount.toString()
+        )}{" "}
+        MATIC
+        </h4>
+        <h4 className='font-bold'>Last Winner: {lastWinner?.toString()}</h4>
+      </div>
+
+      {lotteryOperator == myaddress && (
+        <div className='flex justify-center'>
+            <AdminControls />
+        </div>
+      )}
+
+
       {/* The next draw box  */}
       <div className='space-y-5 md:space-y-0 m-5 md:flex md:flex-row 
       items-start justify-center md:space-x-5'>
         <div className='stats-container'>
-          <h1 className='text-5xl text-white font-semibold text-center'>The Next Draw</h1>
+          <h1 className='text-5xl text-white font-semibold text-center mb-5'>The Next Lottery</h1>
           {/*The price per ticket box*/}
           <div className='flex justify-between p-2 space-x-2'>
             <div className='stats'>
@@ -199,11 +232,11 @@ export default function Home() {
               <div className='stats'>
                 <p className='text-lg mb-3'>You have {userTickets} Tickets in this Lottery </p>
 
-                <div className='flex max-w-sm flex-wrap gap-x-2 gap-y-2'>
+                <div className='flex max-w-sm  gap-x-5 gap-y-2'>
                   {Array(userTickets).fill("").map((_, index) => (
                     <p key={index} 
                     className='text-emerald-300 h-20 w-12 bg-emerald-500/30 
-                    rounded-lg flex flex-shrink-0 items-center justify-center text-xs italic'> {index + 1} </p>
+                    rounded-lg flex flex-shrink-0 items-center justify-center text-xl italic'> {index + 1} </p>
                   ))}
                 </div>
               </div>
